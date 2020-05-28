@@ -135,8 +135,13 @@ rules:
           shardingAlgorithm:
             type: ECIF
             props:
-              props:
-                custom: aaa
+              Person: 0,30 #个人分片
+              Company: 40,49 #公司分片
+              CommonEnterprise: 50,59 #同业分片
+              PT: 60,69 #PT分片
+              RuralBank: 70,79 #村镇分片
+              JointCustomers: 60,69 #联名客户
+              GlobalCustomers: 60,69 #全球客户
       keyGenerator:
         type: SNOWFLAKE
         column: id
@@ -146,7 +151,5 @@ rules:
       shardingAlgorithm:
         type: ECIF
         props:
-          props:
-            custom: aaa
   defaultTableStrategy:
     none:
