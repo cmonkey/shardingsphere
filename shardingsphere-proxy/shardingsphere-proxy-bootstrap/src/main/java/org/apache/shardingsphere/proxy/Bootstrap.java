@@ -20,6 +20,7 @@ package org.apache.shardingsphere.proxy;
 import com.google.common.primitives.Ints;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.shardingsphere.cluster.configuration.swapper.ClusterConfigurationYamlSwapper;
 import org.apache.shardingsphere.cluster.configuration.yaml.YamlClusterConfiguration;
@@ -51,8 +52,13 @@ import org.apache.shardingsphere.proxy.config.yaml.YamlDataSourceParameter;
 import org.apache.shardingsphere.proxy.config.yaml.YamlProxyRuleConfiguration;
 import org.apache.shardingsphere.proxy.config.yaml.YamlProxyServerConfiguration;
 import org.apache.shardingsphere.proxy.frontend.bootstrap.ShardingSphereProxy;
+import org.excavator.boot.bankcomm.shardingsphere.infra.ext.Extension;
+import org.excavator.boot.bankcomm.shardingsphere.infra.ext.ExtensionHelper;
+import org.yaml.snakeyaml.Yaml;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Collections;
@@ -66,6 +72,7 @@ import java.util.Properties;
  * ShardingSphere-Proxy Bootstrap.
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
+@Slf4j
 public final class Bootstrap {
     
     private static final int DEFAULT_PORT = 3307;
@@ -80,6 +87,8 @@ public final class Bootstrap {
      * @throws SQLException SQL exception
      */
     public static void main(final String[] args) throws IOException, SQLException {
+        executeExtensionConfig(args);
+
         int port = getPort(args);
         ShardingConfiguration shardingConfig = new ShardingConfigurationLoader().load(getConfigPath(args));
         logRuleConfigurationMap(getRuleConfigurations(shardingConfig.getRuleConfigurationMap()).values());
@@ -263,6 +272,27 @@ public final class Bootstrap {
             for (Collection<RuleConfiguration> each : ruleConfigurations) {
                 ConfigurationLogger.log(each);
             }
+        }
+    }
+
+    private static String getRedisConfigPath(String[] args){
+        if(args.length < 3){
+            return DEFAULT_CONFIG_PATH;
+        }else{
+            return paddingWithSlash(args[2]);
+        }
+    }
+
+    private static void executeExtensionConfig(String[] args){
+        String extensionConfig = getRedisConfigPath(args) + "ext.yaml";
+        log.info("load extensionConfig = [{}]", extensionConfig);
+        Yaml yaml = new Yaml();
+        try(InputStream inputStream = new FileInputStream(Bootstrap.class.getResource(extensionConfig).getFile())){
+            Extension extension = yaml.loadAs(inputStream, Extension.class);
+            log.info("extension config [{}]", extension);
+            ExtensionHelper.getInstance().load(extension.getExt());
+        }catch (Exception e){
+            log.error("load extension config = [{}] Exception = [{}]", extensionConfig, e);
         }
     }
 }
