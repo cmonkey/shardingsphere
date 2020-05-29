@@ -52,8 +52,8 @@ import org.apache.shardingsphere.proxy.config.yaml.YamlDataSourceParameter;
 import org.apache.shardingsphere.proxy.config.yaml.YamlProxyRuleConfiguration;
 import org.apache.shardingsphere.proxy.config.yaml.YamlProxyServerConfiguration;
 import org.apache.shardingsphere.proxy.frontend.bootstrap.ShardingSphereProxy;
-import org.excavator.boot.bankcomm.shardingsphere.infra.ext.Extension;
-import org.excavator.boot.bankcomm.shardingsphere.infra.ext.ExtensionHelper;
+import org.excavator.boot.shardingsphere.infra.ext.Extension;
+import org.excavator.boot.shardingsphere.infra.ext.ExtensionHelper;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.FileInputStream;
