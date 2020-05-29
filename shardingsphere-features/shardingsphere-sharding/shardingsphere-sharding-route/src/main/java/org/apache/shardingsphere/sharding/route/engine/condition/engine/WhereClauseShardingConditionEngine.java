@@ -88,7 +88,7 @@ public final class WhereClauseShardingConditionEngine {
         Collection<ShardingCondition> result = new LinkedList<>();
         for (AndPredicate each : andPredicates) {
             //Map<Column, Collection<RouteValue>> routeValueMap = createRouteValueMap(sqlStatementContext, each, parameters);
-            Map<Column, Collection<RouteValue>> routeValueMap =  org.excavator.boot.bankcomm.shardingsphere.
+            Map<Column, Collection<RouteValue>> routeValueMap =  org.excavator.boot.shardingsphere.
                     route.engine.condition.engine.
                     WhereClauseShardingConditionEngine.getInstance()
                     .createRouteValueMap(sqlStatementContext, each, parameters, shardingRule, schemaMetaData);
