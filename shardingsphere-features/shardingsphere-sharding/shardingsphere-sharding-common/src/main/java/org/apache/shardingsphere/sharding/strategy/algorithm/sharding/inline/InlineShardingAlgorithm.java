@@ -45,7 +45,7 @@ public final class InlineShardingAlgorithm implements StandardShardingAlgorithm<
         Closure<?> closure = new InlineExpressionParser(algorithmExpression).evaluateClosure();
         Closure<?> result = closure.rehydrate(new Expando(), null, null);
         result.setResolveStrategy(Closure.DELEGATE_ONLY);
-        Object value = org.excavator.boot.bankcomm.shardingsphere.sharding.inline.InlineShardingAlgorithm.getShardingValue(shardingValue.getLogicTableName(), shardingValue.getColumnName(), shardingValue.getValue());
+        Object value = org.excavator.boot.shardingsphere.sharding.inline.InlineShardingAlgorithm.getShardingValue(shardingValue.getLogicTableName(), shardingValue.getColumnName(), shardingValue.getValue());
         result.setProperty(shardingValue.getColumnName(), value);
         return result.call().toString();
     }
