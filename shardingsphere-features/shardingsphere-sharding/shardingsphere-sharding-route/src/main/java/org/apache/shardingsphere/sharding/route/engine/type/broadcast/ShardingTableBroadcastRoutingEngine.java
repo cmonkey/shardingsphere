@@ -81,7 +81,14 @@ public final class ShardingTableBroadcastRoutingEngine implements ShardingRouteE
     
     private Collection<RouteUnit> getAllRouteUnits(final ShardingRule shardingRule, final String logicTableName) {
         Collection<RouteUnit> result = new LinkedList<>();
-        TableRule tableRule = shardingRule.getTableRule(logicTableName);
+        TableRule tableRule = null;
+        try {
+            tableRule = shardingRule.getTableRule(logicTableName);
+        }catch (Exception e){
+        }
+        if(null == tableRule){
+            tableRule = new TableRule(shardingRule.getDataSourceNames(), logicTableName);
+        }
         for (DataNode each : tableRule.getActualDataNodes()) {
             RouteUnit routeUnit = new RouteUnit(new RouteMapper(each.getDataSourceName(), each.getDataSourceName()), Collections.singletonList(new RouteMapper(logicTableName, each.getTableName())));
             result.add(routeUnit);
