@@ -145,6 +145,24 @@ rules:
       keyGenerator:
         type: SNOWFLAKE
         column: id
+    order_test:
+      actualDataNodes: ds_${0..1}.order_test
+      databaseStrategy:
+        complex:
+          shardingColumns: cus_no
+          shardingAlgorithm:
+            type: ECIF
+            props:
+              Person: 0,30 #个人分片
+              Company: 40,50 #公司分片
+              CommonEnterprise: 50,60 #同业分片
+              PT: 60,70 #PT分片
+              RuralBank: 70,80 #村镇分片
+              JointCustomers: 60,70 #联名客户
+              GlobalCustomers: 60,70 #全球客户
+      keyGenerator:
+        type: SNOWFLAKE
+        column: cus_no
   defaultDatabaseStrategy:
     complex:
       shardingColumns: id
