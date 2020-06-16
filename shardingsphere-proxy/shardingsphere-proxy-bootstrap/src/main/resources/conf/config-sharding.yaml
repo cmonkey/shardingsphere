@@ -100,70 +100,52 @@
 #
 ######################################################################################################
 
-#schemaName: sharding_db
-#
-#dataSourceCommon:
-#  username: root
-#  password:
-#  connectionTimeoutMilliseconds: 30000
-#  idleTimeoutMilliseconds: 60000
-#  maxLifetimeMilliseconds: 1800000
-#  maxPoolSize: 50
-#  minPoolSize: 1
-#  maintenanceIntervalMilliseconds: 30000
-#
-#dataSources:
-#  ds_0:
-#    url: jdbc:mysql://127.0.0.1:3306/demo_ds_0?serverTimezone=UTC&useSSL=false
-#  ds_1:
-#    url: jdbc:mysql://127.0.0.1:3306/demo_ds_1?serverTimezone=UTC&useSSL=false
-#
-#rules:
-#- !SHARDING
-#  tables:
-#    t_order:
-#      actualDataNodes: ds_${0..1}.t_order_${0..1}
-#      tableStrategy:
-#        standard:
-#          shardingColumn: order_id
-#          shardingAlgorithmName: t_order_inline
-#      keyGenerateStrategy:
-#        column: order_id
-#        keyGeneratorName: snowflake
-#    t_order_item:
-#      actualDataNodes: ds_${0..1}.t_order_item_${0..1}
-#      tableStrategy:
-#        standard:
-#          shardingColumn: order_id
-#          shardingAlgorithmName: t_order_item_inline
-#      keyGenerateStrategy:
-#        column: order_item_id
-#        keyGeneratorName: snowflake
-#  bindingTables:
-#    - t_order,t_order_item
-#  defaultDatabaseStrategy:
-#    standard:
-#      shardingColumn: user_id
-#      shardingAlgorithmName: database_inline
-#  defaultTableStrategy:
-#    none:
+schemaName: sharding_db
+
+dataSourceCommon:
+  username: root
+  password: root
+  connectionTimeoutMilliseconds: 30000
+  idleTimeoutMilliseconds: 60000
+  maxLifetimeMilliseconds: 1800000
+  maxPoolSize: 50
+  minPoolSize: 1
+  maintenanceIntervalMilliseconds: 30000
+
+dataSources:
+  ds_0:
+    url: jdbc:mysql://127.0.0.1:3306/product?serverTimezone=UTC&useSSL=false
+  ds_1:
+    url: jdbc:mysql://127.0.0.1:3306/product?serverTimezone=UTC&useSSL=false
+
+rules:
+- !SHARDING
+  tables:
+    order_detail:
+      actualDataNodes: ds_${0..1}.order_detail
+      databaseStrategy:
+        complex:
+          shardingColumns: ID
+          shardingAlgorithmName: order_detail_complex
+      keyGenerateStrategy:
+        column: ID
+        keyGeneratorName: snowflake
+  defaultTableStrategy:
+    none:
 #  
-#  shardingAlgorithms:
-#    database_inline:
-#      type: INLINE
-#      props:
-#        algorithm.expression: ds_${user_id % 2}
-#    t_order_inline:
-#      type: INLINE
-#      props:
-#        algorithm.expression: t_order_${order_id % 2}
-#    t_order_item_inline:
-#      type: INLINE
-#      props:
-#        algorithm.expression: t_order_item_${order_id % 2}
-#  
-#  keyGenerators:
-#      snowflake:
-#        type: SNOWFLAKE
-#        props:
-#            worker.id: 123
+  shardingAlgorithms:
+    order_detail_complex:
+      type: ECIF
+      props:
+        Person: "0,30"
+        Company: "40,50"
+        CommonEnterprise: "50,60"
+        PT: "60,70"
+        RuralBank: "70,80"
+        JointCustomers: "60,70"
+        GlobalCustomers: "60,70"
+  keyGenerators:
+      snowflake:
+        type: SNOWFLAKE
+        props:
+            worker.id: 123
