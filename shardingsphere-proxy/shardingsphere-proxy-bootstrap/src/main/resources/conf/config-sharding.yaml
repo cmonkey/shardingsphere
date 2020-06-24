@@ -130,9 +130,17 @@ rules:
       keyGenerateStrategy:
         column: ID
         keyGeneratorName: snowflake
+    order_detail_0:
+      actualDataNodes: ds_${0..1}.order_detail_0
+      databaseStrategy:
+        standard:
+          shardingColumn: ID
+          shardingAlgorithmName: order_detail_shardard
   defaultTableStrategy:
     none:
-#  
+  bindingTables: [order_detail_0]
+  broadcastTables: [risklvl]
+#
   shardingAlgorithms:
     order_detail_complex:
       type: ECIF
@@ -144,6 +152,11 @@ rules:
         RuralBank: "70,80"
         JointCustomers: "60,70"
         GlobalCustomers: "60,70"
+    order_detail_shardard:
+      type: INLINE
+      props:
+        algorithm.expression: order_detail_0
+
   keyGenerators:
       snowflake:
         type: SNOWFLAKE
