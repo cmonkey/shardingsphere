@@ -140,7 +140,7 @@ rules:
     none:
   bindingTables: [order_detail_0]
   broadcastTables: [risklvl]
-#
+
   shardingAlgorithms:
     order_detail_complex:
       type: ECIF
@@ -156,7 +156,6 @@ rules:
       type: INLINE
       props:
         algorithm.expression: order_detail_0
-
   keyGenerators:
       snowflake:
         type: SNOWFLAKE
