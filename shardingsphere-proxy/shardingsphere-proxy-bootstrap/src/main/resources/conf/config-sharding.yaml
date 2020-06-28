@@ -140,7 +140,9 @@ rules:
     none:
   bindingTables: [order_detail_0]
   broadcastTables: [risklvl]
-
+  defaultTableStrategy:
+    none:
+#  
   shardingAlgorithms:
     order_detail_complex:
       type: ECIF
