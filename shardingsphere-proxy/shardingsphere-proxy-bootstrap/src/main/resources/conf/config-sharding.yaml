@@ -136,8 +136,6 @@ rules:
         standard:
           shardingColumn: ID
           shardingAlgorithmName: order_detail_shardard
-  defaultTableStrategy:
-    none:
   bindingTables: [order_detail_0]
   broadcastTables: [risklvl]
   defaultTableStrategy:
