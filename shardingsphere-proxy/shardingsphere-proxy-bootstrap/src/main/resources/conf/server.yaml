@@ -86,6 +86,13 @@ props:
   sql.show: true
   allow.range.query.with.inline.sharding: false
   check.table.metadata.enabled: false
+#authentication:
+#  users:
+#    root:
+#      password: root
+#    sharding:
+#      password: sharding
+#      authorizedSchemas: sharding_db
 #
 #metrics:
 #   name: prometheus
