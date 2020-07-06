@@ -29,6 +29,7 @@ import org.apache.shardingsphere.cluster.facade.ClusterFacade;
 import org.apache.shardingsphere.control.panel.spi.FacadeConfiguration;
 import org.apache.shardingsphere.control.panel.spi.engine.ControlPanelFacadeEngine;
 import org.apache.shardingsphere.control.panel.spi.opentracing.OpenTracingConfiguration;
+import org.apache.shardingsphere.db.protocol.mysql.constant.MySQLServerInfo;
 import org.apache.shardingsphere.infra.auth.Authentication;
 import org.apache.shardingsphere.infra.auth.yaml.config.YamlAuthenticationConfiguration;
 import org.apache.shardingsphere.infra.auth.yaml.swapper.AuthenticationYamlSwapper;
@@ -68,7 +69,8 @@ import org.yaml.snakeyaml.Yaml;
 import java.io.FileInputStream;
 import javax.sql.DataSource;
 import java.io.IOException;
-import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -166,6 +168,25 @@ public final class Bootstrap {
         log(authentication, properties);
         initControlPanelFacade(metricsConfiguration);
         initCluster(cluster);
+        updateServerInfo();
+    }
+    
+    private static void updateServerInfo() {
+        List<String> schemaNames = ProxySchemaContexts.getInstance().getSchemaNames();
+        if (CollectionUtils.isEmpty(schemaNames)) {
+            return;
+        }
+        Map<String, DataSource> dataSources = ProxySchemaContexts.getInstance().getSchema(schemaNames.get(0)).getSchema().getDataSources();
+        DataSource singleDataSource = dataSources.values().iterator().next();
+        try (Connection connection = singleDataSource.getConnection()) {
+            DatabaseMetaData databaseMetaData = connection.getMetaData();
+            String databaseName = databaseMetaData.getDatabaseProductName();
+            String databaseVersion = databaseMetaData.getDatabaseProductVersion();
+            log.info("database name {} , database version {}", databaseName, databaseVersion);
+            MySQLServerInfo.setServerVersion(databaseVersion);
+        } catch (final SQLException ex) {
+            throw new ShardingSphereException("Get database server info failed", ex);
+        }
     }
     
     private static void initControlPanelFacade(final MetricsConfiguration metricsConfiguration) {
