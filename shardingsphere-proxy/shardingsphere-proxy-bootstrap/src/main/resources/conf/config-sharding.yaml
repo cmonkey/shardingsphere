@@ -136,6 +136,15 @@ rules:
         standard:
           shardingColumn: ID
           shardingAlgorithmName: order_detail_shardard
+    risklvl:
+      actualDataNodes: ds_${0..1}.risklvl
+      databaseStrategy:
+        complex:
+          shardingColumns: instance_pk
+          shardingAlgorithmName: order_detail_complex
+      keyGenerateStrategy:
+        column: ID
+        keyGeneratorName: snowflake
   bindingTables: [order_detail_0]
   broadcastTables: [risklvl]
   defaultTableStrategy:
