@@ -146,7 +146,6 @@ rules:
         column: ID
         keyGeneratorName: snowflake
   bindingTables: [order_detail_0]
-  broadcastTables: [risklvl]
   defaultTableStrategy:
     none:
 #  
