@@ -25,7 +25,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.shardingsphere.cluster.configuration.config.ClusterConfiguration;
 import org.apache.shardingsphere.cluster.configuration.swapper.ClusterConfigurationYamlSwapper;
 import org.apache.shardingsphere.cluster.configuration.yaml.YamlClusterConfiguration;
-import org.apache.shardingsphere.cluster.facade.ClusterFacade;
 import org.apache.shardingsphere.control.panel.spi.FacadeConfiguration;
 import org.apache.shardingsphere.control.panel.spi.engine.ControlPanelFacadeEngine;
 import org.apache.shardingsphere.control.panel.spi.opentracing.OpenTracingConfiguration;
@@ -163,33 +162,13 @@ public final class Bootstrap {
     
     private static void initialize(final Authentication authentication, final Properties properties, final Map<String, Map<String, DataSourceParameter>> schemaDataSources,
                                    final Map<String, Collection<RuleConfiguration>> schemaRules, final MetricsConfiguration metricsConfiguration,
-                                   final ClusterConfiguration cluster, final boolean isOrchestration) throws SQLException {
+                                   final ClusterConfiguration clusterConfiguration, final boolean isOrchestration) throws SQLException {
         initProxySchemaContexts(schemaDataSources, schemaRules, authentication, properties, isOrchestration);
         log(authentication, properties);
-        initControlPanelFacade(metricsConfiguration);
-        initCluster(cluster);
-        updateServerInfo();
+        initControlPanelFacade(metricsConfiguration, clusterConfiguration);
     }
     
-    private static void updateServerInfo() {
-        List<String> schemaNames = ProxySchemaContexts.getInstance().getSchemaNames();
-        if (CollectionUtils.isEmpty(schemaNames)) {
-            return;
-        }
-        Map<String, DataSource> dataSources = ProxySchemaContexts.getInstance().getSchema(schemaNames.get(0)).getSchema().getDataSources();
-        DataSource singleDataSource = dataSources.values().iterator().next();
-        try (Connection connection = singleDataSource.getConnection()) {
-            DatabaseMetaData databaseMetaData = connection.getMetaData();
-            String databaseName = databaseMetaData.getDatabaseProductName();
-            String databaseVersion = databaseMetaData.getDatabaseProductVersion();
-            log.info("database name {} , database version {}", databaseName, databaseVersion);
-            MySQLServerInfo.setServerVersion(databaseVersion);
-        } catch (final SQLException ex) {
-            throw new ShardingSphereException("Get database server info failed", ex);
-        }
-    }
-    
-    private static void initControlPanelFacade(final MetricsConfiguration metricsConfiguration) {
+    private static void initControlPanelFacade(final MetricsConfiguration metricsConfiguration, final ClusterConfiguration clusterConfiguration) {
         List<FacadeConfiguration> facadeConfigurations = new LinkedList<>();
         if (null != metricsConfiguration && metricsConfiguration.getEnable()) {
             facadeConfigurations.add(metricsConfiguration);
@@ -197,7 +176,9 @@ public final class Bootstrap {
         if (ProxySchemaContexts.getInstance().getSchemaContexts().getProps().<Boolean>getValue(ConfigurationPropertyKey.PROXY_OPENTRACING_ENABLED)) {
             facadeConfigurations.add(new OpenTracingConfiguration());
         }
-        // TODO add cluster configuration
+        if (ProxySchemaContexts.getInstance().getSchemaContexts().getProps().<Boolean>getValue(ConfigurationPropertyKey.PROXY_CLUSTER_ENABLED)) {
+            facadeConfigurations.add(clusterConfiguration);
+        }
         new ControlPanelFacadeEngine().init(facadeConfigurations);
     }
     
@@ -258,13 +239,6 @@ public final class Bootstrap {
     
     private static boolean isEmptyLocalConfiguration(final YamlProxyServerConfiguration serverConfig, final Map<String, YamlProxyRuleConfiguration> ruleConfigs) {
         return ruleConfigs.isEmpty() && null == serverConfig.getAuthentication() && serverConfig.getProps().isEmpty();
-    }
-    
-    private static void initCluster(final ClusterConfiguration clusterConfiguration) {
-        if (null != ClusterFacade.getInstance()
-                && ProxySchemaContexts.getInstance().getSchemaContexts().getProps().<Boolean>getValue(ConfigurationPropertyKey.PROXY_CLUSTER_ENABLED)) {
-            ClusterFacade.getInstance().init(clusterConfiguration);
-        }
     }
     
     private static Map<String, Map<String, DataSourceConfiguration>> getDataSourceConfigurationMap(final Map<String, YamlProxyRuleConfiguration> ruleConfigs) {
