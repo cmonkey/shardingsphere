@@ -65,6 +65,7 @@ import org.excavator.boot.shardingsphere.infra.ext.Extension;
 import org.excavator.boot.shardingsphere.infra.ext.ExtensionHelper;
 import org.yaml.snakeyaml.Yaml;
 
+import java.io.InputStream;
 import java.io.FileInputStream;
 import javax.sql.DataSource;
 import java.io.IOException;
