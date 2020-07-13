@@ -93,7 +93,7 @@ public final class Bootstrap {
         logRuleConfigurationMap(getRuleConfigurations(shardingConfig.getRuleConfigurationMap()).values());
         boolean isOrchestration = null != shardingConfig.getServerConfiguration().getOrchestration();
         try (ProxyConfigurationConverter converter = ProxyConfigurationConverterFactory.newInstances(isOrchestration)) {
-            ProxyConfiguration proxyConfiguration = converter.convert(shardingConfig);
+            ProxyConfiguration proxyConfiguration = converter.convert(shardingConfig, String.valueOf(port));
             initialize(proxyConfiguration, port, converter);
         }
     }
