@@ -66,10 +66,12 @@
             <artifactId>HikariCP</artifactId>
         </dependency>
         <!-- ext -->
+        <!--
         <dependency>
             <groupId>org.excavator.boot</groupId>
             <artifactId>shardingsphere</artifactId>
             <version>5.0.0-RC1-SNAPSHOT</version>
         </dependency>
+        -->
     </dependencies>
 </project>
