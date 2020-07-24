@@ -109,7 +109,7 @@ public final class OrchestrationFacadeTest {
     
     @Test
     public void assertInitMetricsConfiguration() {
-        MetricsConfiguration metricsConfiguration = new MetricsConfiguration("fixture", null, null, false, true, 8, null);
+        MetricsConfiguration metricsConfiguration = new MetricsConfiguration("fixture", null, 0, false, true, 8, null);
         orchestrationFacade.initMetricsConfiguration(metricsConfiguration);
         verify(configCenter).persistMetricsConfiguration(metricsConfiguration, false);
     }
