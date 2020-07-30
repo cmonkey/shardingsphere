@@ -51,7 +51,12 @@ import org.apache.shardingsphere.proxy.config.ShardingConfiguration;
 import org.apache.shardingsphere.proxy.config.ShardingConfigurationLoader;
 import org.apache.shardingsphere.proxy.config.yaml.YamlProxyRuleConfiguration;
 import org.apache.shardingsphere.proxy.frontend.bootstrap.ShardingSphereProxy;
+import org.excavator.boot.shardingsphere.infra.ext.Extension;
+import org.excavator.boot.cache.ExtensionHelper;
+import org.yaml.snakeyaml.Yaml;
 
+import java.io.InputStream;
+import java.io.FileInputStream;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -81,6 +86,7 @@ public final class Bootstrap {
      * @throws Exception exception
      */
     public static void main(final String[] args) throws Exception {
+        executeExtensionConfig(args);
         int port = getPort(args);
         System.setProperty(Constants.PORT_KEY, String.valueOf(port));
         ShardingConfiguration shardingConfig = new ShardingConfigurationLoader().load(getConfigPath(args));
@@ -201,6 +207,19 @@ public final class Bootstrap {
     private static void logRuleConfigurationMap(final Collection<Collection<RuleConfiguration>> ruleConfigurations) {
         if (CollectionUtils.isNotEmpty(ruleConfigurations)) {
             ruleConfigurations.forEach(ConfigurationLogger::log);
+        }
+    }
+
+    private static void executeExtensionConfig(String[] args){
+        String extensionConfig = getConfigPath(args) + "ext.yaml";
+        log.info("load extensionConfig = [{}]", extensionConfig);
+        Yaml yaml = new Yaml();
+        try(InputStream inputStream = new FileInputStream(Bootstrap.class.getResource(extensionConfig).getFile())){
+            Extension extension = yaml.loadAs(inputStream, Extension.class);
+            log.info("extension config [{}]", extension);
+            ExtensionHelper.load(extension.getExt());
+        }catch (Exception e){
+            log.error("load extension config = [{}] Exception = [{}]", extensionConfig, e);
         }
     }
 }
