@@ -18,6 +18,9 @@
 package org.apache.shardingsphere.proxy;
 
 import com.google.common.primitives.Ints;
+
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -52,9 +55,14 @@ import org.apache.shardingsphere.proxy.config.ShardingConfigurationLoader;
 import org.apache.shardingsphere.proxy.config.yaml.YamlProxyRuleConfiguration;
 import org.apache.shardingsphere.proxy.frontend.bootstrap.ShardingSphereProxy;
 
+import org.excavator.boot.cache.ExtensionHelper;
+import org.yaml.snakeyaml.Yaml;
+import org.excavator.boot.shardingsphere.infra.ext.Extension;
+import org.excavator.boot.cache.ExtensionHelper;
+
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -82,6 +90,7 @@ public final class Bootstrap {
      */
     public static void main(final String[] args) throws Exception {
         int port = getPort(args);
+        executeExtensionConfig(getConfigPath(args));
         System.setProperty(Constants.PORT_KEY, String.valueOf(port));
         ShardingConfiguration shardingConfig = new ShardingConfigurationLoader().load(getConfigPath(args));
         logRuleConfigurationMap(getRuleConfigurations(shardingConfig.getRuleConfigurationMap()).values());
@@ -202,5 +211,17 @@ public final class Bootstrap {
         if (CollectionUtils.isNotEmpty(ruleConfigurations)) {
             ruleConfigurations.forEach(ConfigurationLogger::log);
         }
+    }
+    private static void executeExtensionConfig(String path){
+        String extensionConfig = path + "ext.yaml";
+        log.info("load extensionConfig = [{}]", extensionConfig);
+        Yaml yaml = new Yaml();
+        try(InputStream inputStream = new FileInputStream(Bootstrap.class.getResource(extensionConfig).getFile())){
+                Extension extension = yaml.loadAs(inputStream, Extension.class);
+                log.info("extension config [{}]", extension);
+                ExtensionHelper.load(extension.getExt());
+            }catch (Exception e){
+                log.error("load extension config = [{}] Exception = [{}]", extensionConfig, e);
+            }
     }
 }
