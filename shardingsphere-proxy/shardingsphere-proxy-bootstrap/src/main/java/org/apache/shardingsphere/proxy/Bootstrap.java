@@ -40,8 +40,14 @@ import org.apache.shardingsphere.proxy.db.DatabaseServerInfo;
 import org.apache.shardingsphere.proxy.frontend.bootstrap.ShardingSphereProxy;
 import org.apache.shardingsphere.proxy.orchestration.OrchestrationBootstrap;
 import org.apache.shardingsphere.proxy.orchestration.schema.ProxyOrchestrationSchemaContexts;
+import org.excavator.boot.cache.ExtensionHelper;
+import org.yaml.snakeyaml.Yaml;
+import org.excavator.boot.shardingsphere.infra.ext.Extension;
+import org.excavator.boot.cache.ExtensionHelper;
 
 import javax.sql.DataSource;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -62,6 +68,7 @@ public final class Bootstrap {
      */
     public static void main(final String[] args) throws Exception {
         BootstrapArguments bootstrapArgs = new BootstrapArguments(args);
+        executeExtensionConfig(bootstrapArgs.getConfigurationPath());
         int port = bootstrapArgs.getPort();
         System.setProperty(Constants.PORT_KEY, String.valueOf(port));
         YamlProxyConfiguration yamlConfig = ProxyConfigurationLoader.load(bootstrapArgs.getConfigurationPath());
@@ -113,5 +120,17 @@ public final class Bootstrap {
             log.info(databaseServerInfo.toString());
             MySQLServerInfo.setServerVersion(databaseServerInfo.getDatabaseVersion());
         }
+    }
+    private static void executeExtensionConfig(String path){
+        String extensionConfig = path + "ext.yaml";
+        log.info("load extensionConfig = [{}]", extensionConfig);
+        Yaml yaml = new Yaml();
+        try(InputStream inputStream = new FileInputStream(Bootstrap.class.getResource(extensionConfig).getFile())){
+                Extension extension = yaml.loadAs(inputStream, Extension.class);
+                log.info("extension config [{}]", extension);
+                ExtensionHelper.load(extension.getExt());
+            }catch (Exception e){
+                log.error("load extension config = [{}] Exception = [{}]", extensionConfig, e);
+            }
     }
 }
