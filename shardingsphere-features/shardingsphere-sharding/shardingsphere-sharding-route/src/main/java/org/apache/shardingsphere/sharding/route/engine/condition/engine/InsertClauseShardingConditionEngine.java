@@ -21,6 +21,8 @@ import com.google.common.base.Preconditions;
 import lombok.RequiredArgsConstructor;
 import org.apache.shardingsphere.sharding.rule.ShardingRule;
 import org.apache.shardingsphere.sharding.strategy.value.ListRouteValue;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.shardingsphere.infra.exception.ShardingSphereException;
 import org.apache.shardingsphere.sharding.route.engine.condition.ExpressionConditionUtils;
 import org.apache.shardingsphere.sharding.route.engine.condition.ShardingCondition;
 import org.apache.shardingsphere.sharding.route.spi.SPITimeService;
@@ -46,6 +48,7 @@ import java.util.stream.IntStream;
  * Sharding condition engine for insert clause.
  */
 @RequiredArgsConstructor
+@Slf4j
 public final class InsertClauseShardingConditionEngine {
     
     private final ShardingRule shardingRule;
@@ -98,6 +101,23 @@ public final class InsertClauseShardingConditionEngine {
                     throw new ShardingSphereException("Insert clause sharding column can't be null.");
                 }
             }
+
+            org.excavator.boot.shardingsphere.
+                    route.engine.condition.engine.
+                    InsertClauseShardingConditionEngine.
+                    verifyShardCondition(tableName, columnName).ifPresent(shard -> {
+                log.info("tableName = [{}] columnName = [{}] isShard = [{}]", tableName, columnName, shard);
+                boolean isShard = Boolean.parseBoolean(shard);
+                if(isShard){
+                    if (each instanceof SimpleExpressionSegment) {
+                        result.getRouteValues().add(new ListRouteValue<>(columnName, tableName, Collections.singletonList(getRouteValue((SimpleExpressionSegment) each, parameters))));
+                    } else if (ExpressionConditionUtils.isNowExpression(each)) {
+                        result.getRouteValues().add(new ListRouteValue<>(columnName, tableName, Collections.singletonList(timeService.getTime())));
+                    } else if (ExpressionConditionUtils.isNullExpression(each)) {
+                        throw new ShardingSphereException("Insert clause sharding column can't be null.");
+                    }
+                }
+            });
         }
         return result;
     }
