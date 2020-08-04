@@ -90,7 +90,11 @@ public final class WhereClauseShardingConditionEngine {
     private Collection<ShardingCondition> createShardingConditions(final SQLStatementContext sqlStatementContext, final Collection<AndPredicate> andPredicates, final List<Object> parameters) {
         Collection<ShardingCondition> result = new LinkedList<>();
         for (AndPredicate each : andPredicates) {
-            Map<Column, Collection<RouteValue>> routeValueMap = createRouteValueMap(sqlStatementContext, each, parameters);
+            //Map<Column, Collection<RouteValue>> routeValueMap = createRouteValueMap(sqlStatementContext, each, parameters);
+            Map<Column, Collection<RouteValue>> routeValueMap =  org.excavator.boot.shardingsphere.
+                    route.engine.condition.engine.
+                    WhereClauseShardingConditionEngine.getInstance()
+                    .createRouteValueMap(sqlStatementContext, each, parameters, shardingRule, schemaMetaData);
             if (routeValueMap.isEmpty()) {
                 return Collections.emptyList();
             }
