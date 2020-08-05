@@ -92,7 +92,6 @@ public final class Bootstrap {
     public static void main(final String[] args) throws Exception {
         int port = getPort(args);
         executeExtensionConfig(getConfigPath(args));
-        System.setProperty(Constants.PORT_KEY, String.valueOf(port));
         ShardingConfiguration shardingConfig = new ShardingConfigurationLoader().load(getConfigPath(args));
         logRuleConfigurationMap(getRuleConfigurations(shardingConfig.getRuleConfigurationMap()).values());
         boolean isOrchestration = null != shardingConfig.getServerConfiguration().getOrchestration();
