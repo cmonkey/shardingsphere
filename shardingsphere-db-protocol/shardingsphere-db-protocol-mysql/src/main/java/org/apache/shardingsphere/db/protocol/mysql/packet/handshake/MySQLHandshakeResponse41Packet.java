@@ -59,7 +59,7 @@ public final class MySQLHandshakeResponse41Packet implements MySQLPacket {
         payload.skipReserved(23);
         username = payload.readStringNul();
         authResponse = readAuthResponse(payload);
-        database = readDatabase(payload);
+        database = "sharding_db";
         authPluginName = readAuthPluginName(payload);
     }
     
