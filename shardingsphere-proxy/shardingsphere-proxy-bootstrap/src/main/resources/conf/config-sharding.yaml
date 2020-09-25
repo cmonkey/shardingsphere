@@ -96,70 +96,112 @@
 #
 ######################################################################################################
 
-#schemaName: sharding_db
-#
-#dataSourceCommon:
-#  username: root
-#  password:
-#  connectionTimeoutMilliseconds: 30000
-#  idleTimeoutMilliseconds: 60000
-#  maxLifetimeMilliseconds: 1800000
-#  maxPoolSize: 50
-#  minPoolSize: 1
-#  maintenanceIntervalMilliseconds: 30000
-#
-#dataSources:
-#  ds_0:
-#    url: jdbc:mysql://127.0.0.1:3306/demo_ds_0?serverTimezone=UTC&useSSL=false
-#  ds_1:
-#    url: jdbc:mysql://127.0.0.1:3306/demo_ds_1?serverTimezone=UTC&useSSL=false
-#
-#rules:
-#- !SHARDING
-#  tables:
-#    t_order:
-#      actualDataNodes: ds_${0..1}.t_order_${0..1}
-#      tableStrategy:
-#        standard:
-#          shardingColumn: order_id
-#          shardingAlgorithmName: t_order_inline
-#      keyGenerateStrategy:
-#        column: order_id
-#        keyGeneratorName: snowflake
-#    t_order_item:
-#      actualDataNodes: ds_${0..1}.t_order_item_${0..1}
-#      tableStrategy:
-#        standard:
-#          shardingColumn: order_id
-#          shardingAlgorithmName: t_order_item_inline
-#      keyGenerateStrategy:
-#        column: order_item_id
-#        keyGeneratorName: snowflake
-#  bindingTables:
-#    - t_order,t_order_item
-#  defaultDatabaseStrategy:
-#    standard:
-#      shardingColumn: user_id
-#      shardingAlgorithmName: database_inline
-#  defaultTableStrategy:
-#    none:
-#  
-#  shardingAlgorithms:
-#    database_inline:
-#      type: INLINE
-#      props:
-#        algorithm-expression: ds_${user_id % 2}
-#    t_order_inline:
-#      type: INLINE
-#      props:
-#        algorithm-expression: t_order_${order_id % 2}
-#    t_order_item_inline:
-#      type: INLINE
-#      props:
-#        algorithm-expression: t_order_item_${order_id % 2}
-#  
-#  keyGenerators:
-#    snowflake:
-#      type: SNOWFLAKE
-#      props:
-#        worker-id: 123
+schemaName: sharding_db
+
+dataSourceCommon:
+  username: root
+  password: root
+  connectionTimeoutMilliseconds: 30000
+  idleTimeoutMilliseconds: 60000
+  maxLifetimeMilliseconds: 1800000
+  maxPoolSize: 50
+  minPoolSize: 1
+  maintenanceIntervalMilliseconds: 30000
+
+dataSources:
+  ds_0:
+    url: jdbc:mysql://127.0.0.1:3306/product?serverTimezone=UTC&useSSL=false&rewriteBatchedStatements=true
+  ds_1:
+    url: jdbc:mysql://127.0.0.1:3307/product?serverTimezone=UTC&useSSL=false&rewriteBatchedStatements=true
+  ds_2:
+    url: jdbc:mysql://127.0.0.1:3308/product?serverTimezone=UTC&useSSL=false&rewriteBatchedStatements=true
+  ds_3:
+    url: jdbc:mysql://127.0.0.1:3309/product?serverTimezone=UTC&useSSL=false&rewriteBatchedStatements=true
+  ds_4:
+    url: jdbc:mysql://127.0.0.1:3310/product?serverTimezone=UTC&useSSL=false&rewriteBatchedStatements=true
+  ds_5:
+    url: jdbc:mysql://127.0.0.1:3311/product?serverTimezone=UTC&useSSL=false&rewriteBatchedStatements=true
+  ds_6:
+    url: jdbc:mysql://127.0.0.1:3312/product?serverTimezone=UTC&useSSL=false&rewriteBatchedStatements=true
+  ds_7:
+    url: jdbc:mysql://127.0.0.1:3313/product?serverTimezone=UTC&useSSL=false&rewriteBatchedStatements=true
+  ds_8:
+    url: jdbc:mysql://127.0.0.1:3314/product?serverTimezone=UTC&useSSL=false&rewriteBatchedStatements=true
+  ds_9:
+    url: jdbc:mysql://127.0.0.1:3315/product?serverTimezone=UTC&useSSL=false&rewriteBatchedStatements=true
+  ds_10:
+    url: jdbc:mysql://127.0.0.1:3316/product?serverTimezone=UTC&useSSL=false&rewriteBatchedStatements=true
+  ds_11:
+    url: jdbc:mysql://127.0.0.1:3317/product?serverTimezone=UTC&useSSL=false&rewriteBatchedStatements=true
+  ds_12:
+    url: jdbc:mysql://127.0.0.1:3318/product?serverTimezone=UTC&useSSL=false&rewriteBatchedStatements=true
+  ds_13:
+    url: jdbc:mysql://127.0.0.1:3319/product?serverTimezone=UTC&useSSL=false&rewriteBatchedStatements=true
+  ds_14:
+    url: jdbc:mysql://127.0.0.1:3320/product?serverTimezone=UTC&useSSL=false&rewriteBatchedStatements=true
+  ds_30:
+    url: jdbc:mysql://127.0.0.1:3330/product?serverTimezone=UTC&useSSL=false&rewriteBatchedStatements=true
+  ds_40:
+    url: jdbc:mysql://127.0.0.1:3340/product?serverTimezone=UTC&useSSL=false&rewriteBatchedStatements=true
+  ds_50:
+    url: jdbc:mysql://127.0.0.1:3350/product?serverTimezone=UTC&useSSL=false&rewriteBatchedStatements=true
+  ds_60:
+    url: jdbc:mysql://127.0.0.1:3360/product?serverTimezone=UTC&useSSL=false&rewriteBatchedStatements=true
+
+
+rules:
+- !SHARDING
+  tables:
+    order_detail:
+      actualDataNodes: ds_${0..1}.order_detail
+      databaseStrategy:
+        complex:
+          shardingColumns: ID
+          shardingAlgorithmName: order_detail_complex
+      keyGenerateStrategy:
+        column: ID
+        keyGeneratorName: snowflake
+    order_detail_0:
+      actualDataNodes: ds_${0..1}.order_detail_0
+      databaseStrategy:
+        standard:
+          shardingColumn: ID
+          shardingAlgorithmName: order_detail_shardard
+    risklvl:
+      actualDataNodes: ds_${[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,30,40,50,60]}.risklvl
+      databaseStrategy:
+        complex:
+          shardingColumns: instance_pk
+          shardingAlgorithmName: order_detail_complex
+      keyGenerateStrategy:
+        column: ID
+        keyGeneratorName: snowflake
+
+  bindingTables:
+    - order_detail_0
+  defaultTableStrategy:
+    none:
+
+  shardingAlgorithms:
+    order_detail_complex:
+      type: ECIF
+      props:
+        Person: "0,30"
+        Company: "40,50"
+        CommonEnterprise: "50,60"
+        PT: "60,70"
+        RuralBank: "70,80"
+        JointCustomers: "60,70"
+        GlobalCustomers: "60,70"
+        initHashRing: "true"
+        dsList: ds_0,ds_1,ds_2,ds_3,ds_4,ds_5,ds_6,ds_7,ds_8,ds_9,ds_10,ds_11,ds_12,ds_13,ds_14,ds_30,ds_40,ds_50,ds_60
+    order_detail_shardard:
+      type: INLINE
+      props:
+        algorithm.expression: order_detail_0
+
+  keyGenerators:
+      snowflake:
+        type: SNOWFLAKE
+        props:
+            worker.id: 123
