@@ -19,26 +19,16 @@ package org.apache.shardingsphere.proxy;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.shardingsphere.proxy.arg.BootstrapArguments;
 import org.apache.shardingsphere.proxy.config.ProxyConfigurationLoader;
 import org.apache.shardingsphere.proxy.config.YamlProxyConfiguration;
 import org.apache.shardingsphere.proxy.init.BootstrapInitializer;
 import org.apache.shardingsphere.proxy.init.impl.GovernanceBootstrapInitializer;
 import org.apache.shardingsphere.proxy.init.impl.StandardBootstrapInitializer;
-import org.apache.shardingsphere.proxy.config.yaml.swapper.YamlProxyConfigurationSwapper;
-import org.apache.shardingsphere.proxy.db.DatabaseServerInfo;
-import org.apache.shardingsphere.proxy.frontend.bootstrap.ShardingSphereProxy;
-import org.apache.shardingsphere.proxy.governance.GovernanceBootstrap;
-import org.apache.shardingsphere.tracing.opentracing.OpenTracingTracer;
-import org.apache.shardingsphere.transaction.ShardingTransactionManagerEngine;
-import org.apache.shardingsphere.transaction.context.TransactionContexts;
-import org.apache.shardingsphere.transaction.context.impl.StandardTransactionContexts;
-import org.apache.shardingsphere.proxy.orchestration.OrchestrationBootstrap;
-import org.apache.shardingsphere.proxy.orchestration.schema.ProxyOrchestrationSchemaContexts;
 import org.excavator.boot.cache.ExtensionHelper;
 import org.yaml.snakeyaml.Yaml;
 import org.excavator.boot.shardingsphere.infra.ext.Extension;
-import org.excavator.boot.cache.ExtensionHelper;
 
 import java.io.IOException;
 import java.io.FileInputStream;
@@ -48,6 +38,7 @@ import java.sql.SQLException;
 /**
  * ShardingSphere-Proxy Bootstrap.
  */
+@Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Bootstrap {
     
@@ -61,7 +52,6 @@ public final class Bootstrap {
     public static void main(final String[] args) throws IOException, SQLException {
         BootstrapArguments bootstrapArgs = new BootstrapArguments(args);
         executeExtensionConfig(bootstrapArgs.getConfigurationPath());
-        int port = bootstrapArgs.getPort();
         YamlProxyConfiguration yamlConfig = ProxyConfigurationLoader.load(bootstrapArgs.getConfigurationPath());
         createBootstrapInitializer(yamlConfig).init(yamlConfig, bootstrapArgs.getPort());
     }
