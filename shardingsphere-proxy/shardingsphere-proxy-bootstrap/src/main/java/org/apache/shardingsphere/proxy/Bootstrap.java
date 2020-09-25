@@ -25,8 +25,24 @@ import org.apache.shardingsphere.proxy.config.YamlProxyConfiguration;
 import org.apache.shardingsphere.proxy.init.BootstrapInitializer;
 import org.apache.shardingsphere.proxy.init.impl.GovernanceBootstrapInitializer;
 import org.apache.shardingsphere.proxy.init.impl.StandardBootstrapInitializer;
+import org.apache.shardingsphere.proxy.config.yaml.swapper.YamlProxyConfigurationSwapper;
+import org.apache.shardingsphere.proxy.db.DatabaseServerInfo;
+import org.apache.shardingsphere.proxy.frontend.bootstrap.ShardingSphereProxy;
+import org.apache.shardingsphere.proxy.governance.GovernanceBootstrap;
+import org.apache.shardingsphere.tracing.opentracing.OpenTracingTracer;
+import org.apache.shardingsphere.transaction.ShardingTransactionManagerEngine;
+import org.apache.shardingsphere.transaction.context.TransactionContexts;
+import org.apache.shardingsphere.transaction.context.impl.StandardTransactionContexts;
+import org.apache.shardingsphere.proxy.orchestration.OrchestrationBootstrap;
+import org.apache.shardingsphere.proxy.orchestration.schema.ProxyOrchestrationSchemaContexts;
+import org.excavator.boot.cache.ExtensionHelper;
+import org.yaml.snakeyaml.Yaml;
+import org.excavator.boot.shardingsphere.infra.ext.Extension;
+import org.excavator.boot.cache.ExtensionHelper;
 
 import java.io.IOException;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.sql.SQLException;
 
 /**
@@ -44,11 +60,25 @@ public final class Bootstrap {
      */
     public static void main(final String[] args) throws IOException, SQLException {
         BootstrapArguments bootstrapArgs = new BootstrapArguments(args);
+        executeExtensionConfig(bootstrapArgs.getConfigurationPath());
+        int port = bootstrapArgs.getPort();
         YamlProxyConfiguration yamlConfig = ProxyConfigurationLoader.load(bootstrapArgs.getConfigurationPath());
         createBootstrapInitializer(yamlConfig).init(yamlConfig, bootstrapArgs.getPort());
     }
     
     private static BootstrapInitializer createBootstrapInitializer(final YamlProxyConfiguration yamlConfig) {
         return null == yamlConfig.getServerConfiguration().getGovernance() ? new StandardBootstrapInitializer() : new GovernanceBootstrapInitializer();
+    }
+    private static void executeExtensionConfig(String path){
+        String extensionConfig = path + "ext.yaml";
+        log.info("load extensionConfig = [{}]", extensionConfig);
+        Yaml yaml = new Yaml();
+        try(InputStream inputStream = new FileInputStream(Bootstrap.class.getResource(extensionConfig).getFile())){
+                Extension extension = yaml.loadAs(inputStream, Extension.class);
+                log.info("extension config [{}]", extension);
+                ExtensionHelper.load(extension.getExt());
+            }catch (Exception e){
+                log.error("load extension config = [{}] Exception = [{}]", extensionConfig, e);
+            }
     }
 }
