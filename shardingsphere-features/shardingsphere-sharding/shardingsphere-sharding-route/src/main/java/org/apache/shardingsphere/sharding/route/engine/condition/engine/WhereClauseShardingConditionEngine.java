@@ -33,6 +33,7 @@ import org.apache.shardingsphere.sql.parser.binder.metadata.schema.SchemaMetaDat
 import org.apache.shardingsphere.sql.parser.binder.statement.SQLStatementContext;
 import org.apache.shardingsphere.sql.parser.binder.type.WhereAvailable;
 import org.apache.shardingsphere.sql.parser.sql.common.segment.dml.column.ColumnSegment;
+import org.apache.shardingsphere.sql.parser.sql.common.segment.dml.expr.BinaryOperationExpression;
 import org.apache.shardingsphere.sql.parser.sql.common.segment.dml.expr.ExpressionSegment;
 import org.apache.shardingsphere.sql.parser.sql.common.segment.dml.predicate.AndPredicate;
 import org.apache.shardingsphere.sql.parser.sql.common.segment.dml.predicate.WhereSegment;
@@ -42,15 +43,8 @@ import org.apache.shardingsphere.sql.parser.sql.common.util.ExpressionBuilder;
 import org.apache.shardingsphere.sql.parser.sql.common.util.SafeNumberOperationUtils;
 import org.apache.shardingsphere.sql.parser.sql.common.util.WhereSegmentExtractUtils;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Optional;
 
 /**
  * Sharding condition engine for where clause.
@@ -106,12 +100,38 @@ public final class WhereClauseShardingConditionEngine {
     
     private Map<Column, Collection<RouteValue>> createRouteValueMap(final SQLStatementContext<?> sqlStatementContext, final AndPredicate expressions, final List<Object> parameters) {
         Map<Column, Collection<RouteValue>> result = new HashMap<>();
+        Map<String, Set<String>> cacheMap = org.excavator.boot.shardingsphere.route.engine.condition.engine
+                .WhereClauseShardingConditionEngine
+                .getInstance()
+                .getMatchJoinRules(sqlStatementContext, expressions.getPredicates(),schemaMetaData, parameters);
         for (ExpressionSegment each : expressions.getPredicates()) {
             Optional<ColumnSegment> columnSegment = ColumnExtractFromExpression.extract(each);
             if (!columnSegment.isPresent()) {
                 continue;
             }
             Optional<String> tableName = sqlStatementContext.getTablesContext().findTableName(columnSegment.get(), schemaMetaData);
+
+            if(tableName.isPresent()){
+                if (each instanceof BinaryOperationExpression && ((BinaryOperationExpression) each).getLeft() instanceof ColumnSegment) {
+                    org.excavator.boot.shardingsphere.route.engine.condition.engine
+                            .WhereClauseShardingConditionEngine.getInstance().createRouteValueMap(shardingRule,
+                            parameters,
+                            cacheMap,
+                            (BinaryOperationExpression) each,
+                            columnSegment.get(),
+                            new Column(columnSegment.get().getIdentifier().getValue(), tableName.get()),
+                            tableName.get()).forEach((key, v) -> {
+                        if (!result.containsKey(key)) {
+                            result.put(key, v);
+                        } else {
+                            v.forEach(elem -> {
+                                result.get(key).add(elem);
+                            });
+                        }
+                    });
+                }
+
+            }
             if (!(tableName.isPresent() && shardingRule.isShardingColumn(columnSegment.get().getIdentifier().getValue(), tableName.get()))) {
                 continue;
             }
