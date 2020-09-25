@@ -198,7 +198,7 @@ rules:
     order_detail_shardard:
       type: INLINE
       props:
-        algorithm.expression: order_detail_0
+        algorithm-expression: order_detail_0
 
   keyGenerators:
       snowflake:
