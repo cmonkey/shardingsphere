@@ -6,3 +6,8 @@ ext:
     auth:
   sharding:
     rewriteShardingValue: true
+    tableRules: #关于表中输入如何写入缓存的规则
+      risklvl: #表名，如果被重命名，那么应该是重命名后的表名
+        cacheKeyColumnNameJoinRules: ["rsk_lvl_id", "entity_name", "rsk_lvl_id,entity_name"] #写入缓存key 的连接模式
+      order_detailV2:
+        cacheKeyColumnNameJoinRules: ["id", "name", "id,name"]
