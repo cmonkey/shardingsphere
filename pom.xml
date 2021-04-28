@@ -105,7 +105,13 @@
         <calcite.version>1.26.0</calcite.version>
         <embedded-mysql.version>4.6.1</embedded-mysql.version>
         <embedded-postgresql.version>2.10</embedded-postgresql.version>
-        
+        <!-- adapted high version jdk start -->
+        <jaxb.version>2.3.1</jaxb.version>
+        <javax.activation.version>1.1.1</javax.activation.version>
+        <javax.annotation-api.version>1.3.2</javax.annotation-api.version>
+        <!-- adapted high version jdk end -->
+
+
         <!-- Plugin versions -->
         <apache-rat-plugin.version>0.12</apache-rat-plugin.version>
         <takari-maven-plugin.version>0.6.1</takari-maven-plugin.version>
