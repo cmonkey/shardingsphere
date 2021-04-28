@@ -136,7 +136,7 @@
         <dockerfile-maven.version>1.4.6</dockerfile-maven.version>
         <docker-compose-maven-plugin.version>4.0.0</docker-compose-maven-plugin.version>
         
-        <javadocExecutable>${java.home}/../bin/javadoc</javadocExecutable>
+        <javadocExecutable>${java.home}/bin/javadoc</javadocExecutable>
         <maven.deploy.skip>false</maven.deploy.skip>
     </properties>
     
