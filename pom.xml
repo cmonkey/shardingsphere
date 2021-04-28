@@ -522,7 +522,47 @@
             <artifactId>logback-classic</artifactId>
         </dependency>
     </dependencies>
-    
+    <profiles>
+        <profile>
+			<id>jdk9</id>
+			<activation>
+				<jdk>[9,)</jdk>
+			</activation>
+			<!-- TODO using jdk argLine to get rid of the jaxb dependencies -->
+			<properties>
+				<jdk.argLine>--add-modules java.xml.bind</jdk.argLine>
+			</properties>
+			<dependencies>
+				<dependency>
+					<groupId>javax.xml.bind</groupId>
+					<artifactId>jaxb-api</artifactId>
+					<version>${jaxb.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>com.sun.xml.bind</groupId>
+					<artifactId>jaxb-impl</artifactId>
+					<version>${jaxb.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>org.glassfish.jaxb</groupId>
+					<artifactId>jaxb-runtime</artifactId>
+					<version>${jaxb.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>javax.activation</groupId>
+					<artifactId>activation</artifactId>
+					<version>${javax.activation.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>javax.annotation</groupId>
+					<artifactId>javax.annotation-api</artifactId>
+					<version>${javax.annotation-api.version}</version>
+				</dependency>
+			</dependencies>
+		</profile>
+
+    </profiles>
+
     <build>
         <extensions>
             <extension>
